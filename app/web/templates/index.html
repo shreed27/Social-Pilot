@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SocialPilot · Approval queue</title>
+<style>
+  :root { --bg:#f6f5f2; --card:#fff; --ink:#1c1b19; --muted:#6b6760; --line:#e4e1da; --accent:#c2410c;
+          --ok:#15803d; --bad:#b91c1c; --ig:#c13584; --li:#0a66c2; --x:#111; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141311; --card:#1d1c19; --ink:#f1efe9; --muted:#9c978d;
+          --line:#2f2d29; --accent:#fb923c; --x:#e7e7e7; } }
+  * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--ink);
+      font:15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif }
+  header { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+           padding:18px 24px; border-bottom:1px solid var(--line) }
+  h1 { font-size:18px; margin:0; letter-spacing:-.01em } h1 small { color:var(--muted); font-weight:400 }
+  .mode { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); margin-left:8px }
+  .mode.live { background:var(--bad); color:#fff; border-color:var(--bad) }
+  main { max-width:1100px; margin:0 auto; padding:20px 16px 60px }
+  nav.tabs a { color:var(--muted); text-decoration:none; margin-right:14px; font-weight:500 }
+  nav.tabs a.on { color:var(--ink); border-bottom:2px solid var(--accent) }
+  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:16px 0 }
+  button, select, input, textarea { font:inherit; color:inherit }
+  button { border:1px solid var(--line); background:var(--card); padding:6px 12px; border-radius:8px; cursor:pointer }
+  button.primary { background:var(--ink); color:var(--bg); border-color:var(--ink) }
+  button.danger { color:var(--bad) }
+  select, input, textarea { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 8px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px }
+  .meta { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-size:13px; color:var(--muted) }
+  .pill { padding:1px 8px; border-radius:99px; font-weight:600; font-size:12px; color:#fff }
+  .instagram { background:var(--ig) } .linkedin { background:var(--li) } .x { background:var(--x); color:var(--bg) }
+  .topic { font-weight:650; font-size:16px; margin:8px 0 2px } .angle { color:var(--muted); margin:0 0 10px }
+  .grid { display:grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); gap:16px }
+  @media (max-width:760px) { .grid { grid-template-columns:1fr } }
+  textarea { width:100%; min-height:170px; resize:vertical }
+  .media { display:flex; gap:6px; overflow-x:auto } .media img, .media video { height:220px; border-radius:8px; border:1px solid var(--line) }
+  .slides { font-size:13px; color:var(--muted); max-height:220px; overflow:auto; padding-left:18px }
+  .scores { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; font-size:12px; text-align:center; margin:8px 0 }
+  .scores div { border:1px solid var(--line); border-radius:6px; padding:4px } .scores b { display:block; font-size:15px }
+  .note { font-size:13px; color:var(--muted) } .warn { color:var(--bad); font-size:13px }
+  .actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px }
+  .empty { text-align:center; color:var(--muted); padding:60px 0 }
+</style>
+</head>
+<body>
+<header>
+  <h1>SocialPilot <small>approval queue</small><span class="mode {{ 'live' if mode=='live' }}">{{ mode }}</span></h1>
+  <nav class="tabs">
+    {% for st in ['pending','approved','publishing','published','failed','rejected'] %}
+      <a class="{{ 'on' if status==st }}" href="/classic?status={{ st }}">{{ st|capitalize }} ({{ counts[st] }})</a>
+    {% endfor %}
+    <a href="/analytics">Analytics</a>
+  </nav>
+</header>
+<main>
+  <div class="bar">
+    <form method="post" action="/generate" style="display:flex;gap:8px;flex-wrap:wrap">
+      <select name="page_id">{% for pid, p in pages.items() %}<option value="{{ pid }}">{{ p.platform }} · {{ p.handle }}</option>{% endfor %}</select>
+      <select name="fmt"><option value="">auto format</option>
+        {% for f in ['text','thread','image','carousel','reel','document'] %}<option>{{ f }}</option>{% endfor %}</select>
+      <button class="primary">Generate draft</button>
+    </form>
+    <form method="post" action="/run/plan"><button>Fill queue</button></form>
+    <form method="post" action="/run/engage"><button>Scan comments</button></form>
+    <form method="post" action="/run/metrics"><button>Pull metrics</button></form>
+    <form method="post" action="/run/publish"><button>Publish due</button></form>
+  </div>
+
+  {% for d in drafts %}
+  {% set p = pages[d.page_id] %}
+  <article class="card">
+    <div class="meta">
+      <span class="pill {{ d.platform }}">{{ d.platform }}</span>
+      <span>{{ p.handle }}</span> · <span>{{ d.kind }}</span> · <span>{{ d.format }}</span>
+      {% if d.pillar %} · <span>{{ d.pillar }}</span>{% endif %}
+      {% if d.published_id %} · <span>id {{ d.published_id }}</span>{% endif %}
+    </div>
+    <div class="topic">{{ d.topic }}</div>
+    {% if d.kind == 'reply' %}<p class="angle">↳ {{ d.reply_context }}</p>{% elif d.angle %}<p class="angle">{{ d.angle }}</p>{% endif %}
+
+    <form method="post" action="/drafts/{{ d.id }}/approve">
+    <div class="grid">
+      <div>
+        {% if d.content.thread %}
+          <label class="note">Thread (separate posts with a line containing ---)</label>
+          <textarea name="thread">{{ d.content.thread|join('\n---\n') }}</textarea>
+        {% else %}
+          <label class="note">Caption</label>
+          <textarea name="caption">{{ d.content.caption }}</textarea>
+        {% endif %}
+        {% if d.content.hashtags %}<div class="note">{{ d.content.hashtags|join(' ') }}</div>{% endif %}
+        {% if d.content.cta %}<div class="note">CTA: {{ d.content.cta }}</div>{% endif %}
+      </div>
+      <div>
+        {% if d.media %}<div class="media">
+          {% for m in d.media %}
+            {% if m.endswith('.mp4') %}<video src="{{ m|media_url }}" controls></video>
+            {% elif m.endswith('.pdf') %}<a href="{{ m|media_url }}" target="_blank">Open document PDF</a>
+            {% else %}<img src="{{ m|media_url }}" alt="">{% endif %}
+          {% endfor %}</div>{% endif %}
+        {% if d.content.slides and not d.media %}<ol class="slides">{% for sl in d.content.slides %}<li><b>{{ sl.title }}</b> {{ sl.body }}</li>{% endfor %}</ol>{% endif %}
+        {% if d.critic.scores %}
+          <div class="scores">{% for k, v in d.critic.scores.items() %}<div>{{ k.replace('_',' ') }}<b>{{ v }}</b></div>{% endfor %}</div>
+          <div class="note">Editor {{ d.critic.overall }} · {{ d.critic.verdict }} — {{ d.critic.feedback }}</div>
+          {% for v in d.critic.violations or [] %}<div class="warn">⚠ {{ v }}</div>{% endfor %}
+        {% endif %}
+        {% if d.error %}<div class="warn">{{ d.error }}</div>{% endif %}
+      </div>
+    </div>
+    <div class="actions">
+      {% if d.status.value == 'pending' %}
+        {% if d.kind == 'post' %}<label class="note">Post at <input type="datetime-local" name="scheduled_at" value="{{ d.scheduled_at|local }}"></label>{% endif %}
+        <button class="primary" name="action" value="now">{{ 'Approve reply' if d.kind=='reply' else 'Approve & post now' }}</button>
+        {% if d.kind == 'post' %}<button name="action" value="schedule">Schedule</button>{% endif %}
+    </form>
+        <form method="post" action="/drafts/{{ d.id }}/reject"><button class="danger">Reject</button></form>
+        {% if d.kind == 'post' %}<form method="post" action="/drafts/{{ d.id }}/regenerate"><button>Regenerate</button></form>{% endif %}
+      {% elif d.status.value == 'failed' %}
+    </form>
+        <form method="post" action="/drafts/{{ d.id }}/retry"><button class="primary">Retry</button></form>
+      {% else %}
+    </form>
+        <span class="note">{{ d.status.value }} · {{ d.scheduled_at|local|replace('T',' ') }}</span>
+      {% endif %}
+    </div>
+  </article>
+  {% else %}
+  <div class="empty">Nothing {{ status }} right now.</div>
+  {% endfor %}
+</main>
+</body>
+</html>
