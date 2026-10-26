@@ -1,0 +1,67 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Coral (deal 1/3, seed approval-desk-where-small-6fd4·e97002e8·2026-10-26·r0) · redesign: full
+ * nav: kept top bar, five destinations as text links, one ink action · signature: the approval desk, each draft a cotton proof, "Live" pressed into the stock in coral once it posts · states: loading, empty, error, full
+ * axes: light/grotesk-sans/warm · posture: restrained · contrast: pass · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, a status table could sit in any admin; made the proofs the product's own drafts and spent coral only on the posted stamp */
+/* Hallmark · waive 39b · app UI, controls 36px with the .hit 44px target · the oversized buttons are whole draft proofs and list rows you click to open a post */
+/* Hallmark · waive 72 · the proof text clips inside its 4:5 picture box · a long caption on a draft proof fades out at the bottom of the picture, as the feed crops it */
+/* Hallmark · dropped onClick={() => setPageFilter("all")}, onClick={() => setPageFilter(p.id)}, onClick={() => setPageId(p.id)}, onClick={() => setSort(k)} · the same handlers now run through the Groove control's onChange, same state and same effect */
+/* Hallmark · reworded "Nothing has gone live yet and your pages picked…" to "Nothing has gone live yet today" · 38iii named the highlighted half, which became its own line under the head */
+/* Hallmark · reworded "Waiting for you" to "On your desk" · the drafts are laid out as proofs on the desk; "Review all" keeps the count */
+/* Hallmark · reworded "What's earning follows" to "What’s earning follows" · F1 asked for the typographic apostrophe */
+/* Hallmark · dismissed F25 · the column that names the row is sticky at the left edge on phones, so it stays in view while the figures scroll */
+/* Hallmark · dismissed kept · the old Today head was one sentence split by a highlight; both halves are kept, the second as its own line under the head */
+/* Hallmark · finish-review: subagent interrupted by a usage limit before its verdict · sweep: sloplint 0 FAIL, 0 REFLEX, 4 waived on record */
+/* Hallmark · fonts: General Sans loads from Fontshare where the network allows; Instrument Sans is the bundled stand-in of the same build */
+@import "tailwindcss";
+@import "./styles/tokens.css";
+@import "./styles/base.css" layer(base);
+
+#root { min-height: 100dvh; display: flex; flex-direction: column; }
+#root > * { flex: 1 0 auto; }
+body { background-color: var(--color-desk); }
+
+.num { font-family: var(--font-outlier); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+
+/* the desk: felt, lit from the left */
+.desk {
+  background-color: var(--color-desk);
+  background-image: radial-gradient(90% 120% at 0% 20%, color-mix(in oklab, var(--color-cotton) 70%, transparent), transparent 62%), var(--tex-desk);
+}
+/* cotton stock: every draft, sheet and card the product handles */
+.stock {
+  background-color: var(--color-cotton);
+  background-image: linear-gradient(100deg, var(--color-cotton), transparent 45%), var(--tex-cotton);
+  color: var(--color-print);
+  box-shadow: var(--edge-stock), var(--cast-stock);
+}
+a.stock, button.stock { transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out); }
+a.stock:hover, button.stock:hover { transform: translateY(-1px); box-shadow: var(--edge-stock), var(--cast-stock-lift); }
+a.stock:active, button.stock:active { transform: translateY(1px); }
+
+/* the groove: a choice of two to four, pressed into cotton */
+.groove { background: var(--color-paper-2); box-shadow: var(--press-groove); border-radius: 12px; }
+
+/* the settled state, pressed into the stock */
+.pressed {
+  display: inline-block;
+  color: var(--color-paid);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transform: rotate(-4deg);
+  filter: url(#press-ink);
+}
+
+/* app controls stand 36px with a 44px hit target */
+.hit { position: relative; }
+.hit::after { content: ""; position: absolute; inset: -4px; }
+
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-rule-2) transparent; }
+kbd {
+  font-family: var(--font-outlier); font-size: var(--text-xs); line-height: 1.4;
+  border: var(--rule-hair) solid var(--color-rule-2); border-bottom-width: 2px; border-radius: var(--radius-input);
+  padding: 0 var(--space-2xs); color: var(--color-muted); background: var(--color-cotton);
+}
+input:disabled, button:disabled, textarea:disabled { cursor: not-allowed; }
+
+/* grid tracks default to min-content; let children shrink so nothing pushes past the viewport */
+.grid > * { min-width: 0; }
