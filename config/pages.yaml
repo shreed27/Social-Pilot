@@ -1,0 +1,110 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# One block per page. Everything the agents know about a page comes from here,
+# so this file is the "brain" of each account. Replace every <FILL ME> value
+# with your real page scope before running in live mode.
+# ─────────────────────────────────────────────────────────────────────────────
+
+pages:
+  - id: insta_main
+    platform: instagram
+    handle: "@your_insta_handle"          # <FILL ME>
+    niche: "<FILL ME: e.g. AI tools for Indian college students>"
+    audience: "<FILL ME: who follows, their age, goals, pain points>"
+    goal: "Grow followers in the niche via saves and shares"
+    voice: "Friendly, punchy, practical. Short lines. One idea per slide."
+    language: "English (Indian audience, light Hinglish allowed)"
+    pillars:                             # content themes the strategist rotates through
+      - name: "how-to"
+        description: "Step-by-step tutorials people save for later"
+      - name: "myth-vs-fact"
+        description: "Correct a common misconception in the niche"
+      - name: "tool-of-the-week"
+        description: "One tool or resource, what it does, how to use it"
+      - name: "relatable"
+        description: "Shareable, relatable situations from the audience's life"
+    formats: [carousel, reel, image]     # allowed formats (IG supports all three)
+    posts_per_week: 12                   # ~2 a day: Instagram spreads reach across posts a few hours apart
+    preferred_slots: ["08:30", "13:00", "18:30", "21:30"]   # local time; analytics shifts toward the best ones
+    hashtags:
+      core: ["#<fillme>", "#<fillme2>"]  # always-on niche tags
+      max_per_post: 8
+    brand:
+      bg: "#0F172A"
+      fg: "#F8FAFC"
+      accent: "#F59E0B"
+      font: "DejaVuSans-Bold.ttf"
+    sources:                             # trend inputs for the research agent (RSS/Atom)
+      - "https://news.google.com/rss/search?q=<FILL+ME+NICHE+KEYWORDS>&hl=en-IN&gl=IN&ceid=IN:en"
+    avoid: ["politics", "unverified claims", "competitor bashing"]
+    reference_accounts: []               # <FILL ME: 3–10 top accounts in your niche, e.g. "@account">
+    search_keywords: []                  # <FILL ME: 2–4 phrases people in the niche post about, e.g. "study tips">
+    cta_options: ["Save this for later", "Share with a friend who needs this", "Follow for more"]
+
+  - id: linkedin_main
+    platform: linkedin
+    handle: "<FILL ME: company page name>"
+    organization_urn: "urn:li:organization:<FILL ME>"
+    niche: "<FILL ME>"
+    audience: "<FILL ME: roles, seniority, industry>"
+    goal: "Grow page followers with credible, insight-led posts"
+    voice: "Expert but human. Opinionated, backed by specifics. No buzzwords."
+    language: "English"
+    pillars:
+      - name: "insight"
+        description: "A non-obvious lesson with a concrete example"
+      - name: "framework"
+        description: "A reusable mental model or checklist (works well as a document carousel)"
+      - name: "industry-take"
+        description: "A clear opinion on a recent development in the niche"
+      - name: "behind-the-scenes"
+        description: "How the team builds, decides, fails, and fixes"
+    formats: [text, document, image]     # 'document' = PDF carousel, strong reach on LinkedIn
+    posts_per_week: 7                    # 1 a day; LinkedIn's ranker punishes posting twice in a day
+    preferred_slots: ["08:15", "12:30", "17:45"]
+    hashtags:
+      core: ["#<fillme>"]
+      max_per_post: 3
+    brand:
+      bg: "#FFFFFF"
+      fg: "#111827"
+      accent: "#2563EB"
+      font: "DejaVuSans-Bold.ttf"
+    sources:
+      - "https://news.google.com/rss/search?q=<FILL+ME>&hl=en-IN&gl=IN&ceid=IN:en"
+    avoid: ["politics", "engagement bait like 'comment YES'"]
+    reference_accounts: []
+    search_keywords: []
+    cta_options: ["Follow the page for more", "What would you add?", "Repost if useful"]
+
+  - id: x_main
+    platform: x
+    handle: "@your_x_handle"
+    niche: "<FILL ME>"
+    audience: "<FILL ME>"
+    goal: "Grow followers via threads and timely takes"
+    voice: "Sharp, concise, a bit witty. Strong first line."
+    language: "English"
+    pillars:
+      - name: "thread"
+        description: "A 4–7 post thread that teaches one thing end to end"
+      - name: "hot-take"
+        description: "A crisp opinion on today's news in the niche"
+      - name: "list"
+        description: "A curated list of resources, tools or examples"
+    formats: [text, thread, image]
+    posts_per_week: 28                   # ~4 a day: X rewards volume and timeliness
+    preferred_slots: ["08:00", "10:30", "13:00", "16:00", "19:00", "21:30", "23:00"]
+    hashtags:
+      core: []
+      max_per_post: 1                    # hashtags hurt more than help on X
+    brand:
+      bg: "#000000"
+      fg: "#FFFFFF"
+      accent: "#1D9BF0"
+      font: "DejaVuSans-Bold.ttf"
+    sources:
+      - "https://news.google.com/rss/search?q=<FILL+ME>&hl=en-IN&gl=IN&ceid=IN:en"
+    avoid: ["politics", "links in the main post (X bills URL posts ~13x higher)"]
+    reference_accounts: []
+    search_keywords: []
+    cta_options: ["Follow for more like this", "Bookmark this thread"]
